@@ -4,63 +4,88 @@ import { ref } from 'vue';
 
 let cards = ref([
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'a',
+    cardImage: '/src/assets/cowboy-dog.jpg',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'a',
+    cardImage: '/src/assets/cowboy-dog.jpg',
     isActive: false,
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'b',
+    cardImage: '/src/assets/dapper-dog.jpg',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'b',
+    cardImage: '/src/assets/dapper-dog.jpg',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'c',
+    cardImage: '/src/assets/propeller-dog.jpg',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'c',
+    cardImage: '/src/assets/propeller-dog.jpg',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'd',
+    cardImage: '/src/assets/strawberry-dog.webp',
     isActive: false
   },
   {
-    title: 'Card',
-    description: 'Card description',
+    id: 'd',
+    cardImage: '/src/assets/strawberry-dog.webp',
     isActive: false
   }
 ]);
 
+cards.value = cards.value.sort(() => Math.random() - 0.5);
+
+const flippedCards = ref([]);
+
 const handleCardClick = (card) => {
-  card.isActive = !card.isActive;
-  console.log(card.isActive);
+  if (card.isActive || flippedCards.value.length >= 2) return; 
+  
+  card.isActive = true;
+  flippedCards.value.push(card);
+
+  if (flippedCards.value.length === 2) {
+    if (flippedCards.value[0].id === flippedCards.value[1].id) {
+      
+      setTimeout(() => {
+        cards.value = cards.value.filter(card => card.id !== flippedCards.value[0].id);
+        cards.value = cards.value.filter(card => card.id !== flippedCards.value[1].id);
+        flippedCards.value = [];
+      }, 1000);
+    }
+    else{ 
+      setTimeout(() => {
+        flippedCards.value[0].isActive = false;
+        flippedCards.value[1].isActive = false;
+        flippedCards.value = [];
+      }, 1000);
+    }
+  }
 }
 </script>
 
 <template>
   <div class="cards-display">
-    <div v-for="card in cards" class="card-container" :key="card.title">
+    <div v-for="card in cards" class="card-container">
       <div @click="handleCardClick(card)">
         <Transition name="card-flip" mode="out-in">
         <Card v-if="card.isActive" key="front" :class="{ active: card.isActive }" class="card">
-            <template class="card-text" #content>{{ card.description }}</template>
+            <template class="card-text" #content>
+              <img :src="card.cardImage"/>
+            </template>
         </Card>
         <Card v-else key="back" :class="{ active: card.isActive }" class="card">
-            <template class="card-text" #content> {{ card.title }} </template>
         </Card>
       </Transition>
       </div>
@@ -74,6 +99,8 @@ const handleCardClick = (card) => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  place-items: center;
+  margin: auto;
 }
 .card-container{
   perspective: 1000px;
@@ -92,6 +119,11 @@ const handleCardClick = (card) => {
   color: rgb(45, 45, 174);
   background-color: white;
   border-radius: 5px;
+}
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .active {
   color: white;
