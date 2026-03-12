@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import Card from 'primevue/card'
 import { ref } from 'vue';
 
