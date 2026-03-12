@@ -48,34 +48,42 @@ let cards = ref([
 cards.value = cards.value.sort(() => Math.random() - 0.5);
 
 const flippedCards = ref([]);
+const amountMatches = ref(0);
+const amountErrors = ref(0);
 
 const handleCardClick = (card) => {
-  if (card.isActive || flippedCards.value.length >= 2) return; 
-  
-  card.isActive = true;
-  flippedCards.value.push(card);
-
-  if (flippedCards.value.length === 2) {
-    if (flippedCards.value[0].id === flippedCards.value[1].id) {
-      
-      setTimeout(() => {
-        cards.value = cards.value.filter(card => card.id !== flippedCards.value[0].id);
-        cards.value = cards.value.filter(card => card.id !== flippedCards.value[1].id);
-        flippedCards.value = [];
-      }, 1000);
-    }
-    else{ 
-      setTimeout(() => {
-        flippedCards.value[0].isActive = false;
-        flippedCards.value[1].isActive = false;
-        flippedCards.value = [];
-      }, 1000);
+  if (card.isActive || flippedCards.value.length >= 2) {return} 
+  else {
+    card.isActive = true;
+    flippedCards.value.push(card);
+    if (flippedCards.value.length === 2) {
+      if (flippedCards.value[0].id === flippedCards.value[1].id) {
+        setTimeout(() => {
+          cards.value = cards.value.filter(card => card.id !== flippedCards.value[0].id);
+          cards.value = cards.value.filter(card => card.id !== flippedCards.value[1].id);
+          amountMatches.value++;
+          flippedCards.value = [];
+        }, 1000);
+      }
+      else { 
+        setTimeout(() => {
+          flippedCards.value[0].isActive = false;
+          flippedCards.value[1].isActive = false;
+          amountErrors.value++;
+          flippedCards.value = [];
+        }, 1000);
+      }
     }
   }
 }
 </script>
 
 <template>
+  <div class="score">
+    <p>Matches: {{ amountMatches }}</p>
+    <p>Failures: {{ amountErrors }}</p>
+  </div>
+  <div class="victory" v-if="cards.length === 0">Yay!</div>
   <div class="cards-display">
     <div v-for="card in cards" class="card-container">
       <div @click="handleCardClick(card)">
@@ -94,13 +102,31 @@ const handleCardClick = (card) => {
 </template>
 
 <style scoped>
+.victory {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+}
+.score {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  top: 0;
+  left: 0;
+  margin: 4rem;
+}
 
 .cards-display {
+  text-align: center;
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   place-items: center;
-  margin: auto;
 }
 .card-container{
   perspective: 1000px;
@@ -122,7 +148,8 @@ const handleCardClick = (card) => {
 }
 .card img {
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
   object-fit: cover;
 }
 .active {
